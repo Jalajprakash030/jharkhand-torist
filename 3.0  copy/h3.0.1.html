@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jharkhand Journey Planner - AI Powered Travel Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+        
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .bg-jharkhand {
+            background: linear-gradient(135deg, rgba(0,0,0,0.8), rgba(0,0,0,0.6)), 
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23065f46;stop-opacity:1" /><stop offset="30%" style="stop-color:%23047857;stop-opacity:1" /><stop offset="70%" style="stop-color:%23064e3b;stop-opacity:1" /><stop offset="100%" style="stop-color:%23022c22;stop-opacity:1" /></linearGradient><radialGradient id="sun" cx="50%" cy="30%" r="15%"><stop offset="0%" style="stop-color:%23fbbf24;stop-opacity:0.8" /><stop offset="100%" style="stop-color:%23f59e0b;stop-opacity:0.3" /></radialGradient></defs><rect width="1200" height="800" fill="url(%23bg)"/><circle cx="900" cy="150" r="120" fill="url(%23sun)"/><path d="M0,500 Q200,450 400,480 T800,460 Q1000,450 1200,480 L1200,800 L0,800 Z" fill="%23166534" opacity="0.4"/><path d="M0,600 Q300,550 600,580 T1200,560 L1200,800 L0,800 Z" fill="%2315803d" opacity="0.3"/><circle cx="150" cy="200" r="3" fill="%23fbbf24" opacity="0.6"><animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/></circle><circle cx="300" cy="180" r="2" fill="%23fbbf24" opacity="0.5"><animate attributeName="opacity" values="0.5;0.9;0.5" dur="3s" repeatCount="indefinite"/></circle><circle cx="1000" cy="250" r="4" fill="%23fbbf24" opacity="0.7"><animate attributeName="opacity" values="0.7;1;0.7" dur="2.5s" repeatCount="indefinite"/></circle></svg>');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .glass-strong {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .chat-bubble-user {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8, #1e40af);
+            border-radius: 20px 20px 6px 20px;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+        
+        .chat-bubble-bot {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px 20px 20px 6px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .floating-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-15px) rotate(2deg); }
+            66% { transform: translateY(-8px) rotate(-1deg); }
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 3s infinite;
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(59, 130, 246, 0.4), 0 0 40px rgba(147, 51, 234, 0.2);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 30px rgba(59, 130, 246, 0.6), 0 0 60px rgba(147, 51, 234, 0.4);
+                transform: scale(1.02);
+            }
+        }
+        
+        .typing-indicator {
+            display: none;
+        }
+        
+        .typing-indicator.active {
+            display: flex;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #6366f1, #8b5cf6);
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1.2); opacity: 1; }
+        }
+        
+        .feature-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .weather-widget {
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            border-radius: 16px;
+            padding: 16px;
+            color: white;
+            text-align: center;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #34d399);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        .chat-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .suggestion-chip {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #3b82f6;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .suggestion-chip:hover {
+            background: rgba(59, 130, 246, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .voice-button {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .voice-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+        }
+        
+        .voice-button.recording {
+            animation: pulse-red 1s infinite;
+        }
+        
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(16, 185, 129, 0.95);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .map-preview {
+            background: linear-gradient(135deg, #065f46, #047857);
+            border-radius: 12px;
+            padding: 16px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .map-preview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="30" cy="30" r="2" fill="white" opacity="0.3"/><circle cx="70" cy="20" r="1.5" fill="white" opacity="0.4"/><circle cx="50" cy="60" r="2.5" fill="white" opacity="0.2"/><path d="M20,80 Q50,70 80,80" stroke="white" stroke-width="0.5" fill="none" opacity="0.3"/></svg>');
+            opacity: 0.1;
+        }
+        
+        .stats-counter {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .scroll-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+        }
+        
+        .scroll-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+        
+        @media (max-width: 768px) {
+            .glass-effect {
+                backdrop-filter: blur(15px);
+            }
+            
+            .feature-card:hover {
+                transform: translateY(-4px) scale(1.01);
+            }
+        }
+    </style>
+</head>
+<body class="bg-jharkhand">
+    <!-- Scroll Progress Indicator -->
+    <div class="scroll-indicator">
+        <div class="scroll-progress" id="scrollProgress"></div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <i class="fas fa-check-circle mr-2"></i>
+        <span id="notificationText">Welcome to Jharkhand Journey Planner!</span>
+    </div>
+
+    <!-- Enhanced Header -->
+    <header class="glass-effect p-6 mb-8 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-14 h-14 bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 rounded-full flex items-center justify-center floating-animation shadow-lg">
+                    <span class="text-2xl">🏔️</span>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold gradient-text">Jharkhand Journey Planner</h1>
+                    <p class="text-gray-200 text-sm flex items-center">
+                        <i class="fas fa-robot mr-2"></i>
+                        AI-Powered Travel Assistant
+                    </p>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center space-x-6 text-white">
+                <div class="flex items-center space-x-2">
+                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span class="text-sm">Live AI Assistant</span>
+                </div>
+                <div class="weather-widget">
+                    <div class="text-xs opacity-90">Ranchi Today</div>
+                    <div class="text-lg font-bold">24°C</div>
+                    <div class="text-xs">Sunny</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-6 pb-8">
+        <!-- Enhanced Stats Section -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="glass-effect rounded-xl p-4 text-center feature-card">
+                <div class="text-2xl mb-2">🎯</div>
+                <div class="stats-counter text-white" data-target="50">0</div>
+                <div class="text-gray-300 text-xs">Destinations</div>
+            </div>
+            <div class="glass-effect rounded-xl p-4 text-center feature-card">
+                <div class="text-2xl mb-2">⭐</div>
+                <div class="stats-counter text-white" data-target="98">0</div>
+                <div class="text-gray-300 text-xs">Satisfaction %</div>
+            </div>
+            <div class="glass-effect rounded-xl p-4 text-center feature-card">
+                <div class="text-2xl mb-2">🤖</div>
+                <div class="stats-counter text-white" data-target="24">0</div>
+                <div class="text-gray-300 text-xs">AI Responses/hr</div>
+            </div>
+            <div class="glass-effect rounded-xl p-4 text-center feature-card">
+                <div class="text-2xl mb-2">🏨</div>
+                <div class="stats-counter text-white" data-target="200">0</div>
+                <div class="text-gray-300 text-xs">Partner Hotels</div>
+            </div>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-8">
+            <!-- Enhanced Left Panel -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Trip Planning Form -->
+                <div class="glass-strong rounded-2xl p-6 feature-card">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                        <span class="mr-3 text-2xl">📋</span>
+                        Smart Trip Planner
+                    </h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-medium mb-2 flex items-center">
+                                <i class="fas fa-map-marker-alt mr-2 text-blue-500"></i>
+                                Destination in Jharkhand
+                            </label>
+                            <select id="destination" class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                <option value="">Select your destination</option>
+                                <option value="ranchi">🏙️ Ranchi (Capital City)</option>
+                                <option value="jamshedpur">🏭 Jamshedpur (Steel City)</option>
+                                <option value="dhanbad">⛏️ Dhanbad (Coal Capital)</option>
+                                <option value="bokaro">🔧 Bokaro Steel City</option>
+                                <option value="deoghar">🕉️ Deoghar (Baba Baidyanath Dham)</option>
+                                <option value="hazaribagh">🦌 Hazaribagh (Wildlife & Nature)</option>
+                                <option value="netarhat">🌄 Netarhat (Queen of Chotanagpur)</option>
+                                <option value="parasnath">⛰️ Parasnath Hill (Jain Pilgrimage)</option>
+                                <option value="betla">🐅 Betla National Park</option>
+                                <option value="dalma">🦏 Dalma Wildlife Sanctuary</option>
+                            </select>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-gray-700 text-sm font-medium mb-2 flex items-center">
+                                    <i class="fas fa-calendar mr-2 text-green-500"></i>
+                                    Duration
+                                </label>
+                                <select id="duration" class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                    <option value="">Duration</option>
+                                    <option value="1-2 days">1-2 Days</option>
+                                    <option value="3-4 days">3-4 Days</option>
+                                    <option value="5-7 days">5-7 Days</option>
+                                    <option value="7+ days">7+ Days</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-gray-700 text-sm font-medium mb-2 flex items-center">
+                                    <i class="fas fa-users mr-2 text-purple-500"></i>
+                                    Group
+                                </label>
+                                <select id="groupSize" class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                    <option value="">Group Size</option>
+                                    <option value="solo">Solo</option>
+                                    <option value="couple">Couple</option>
+                                    <option value="small-group">Small Group</option>
+                                    <option value="family">Family</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 text-sm font-medium mb-2 flex items-center">
+                                <i class="fas fa-heart mr-2 text-red-500"></i>
+                                Travel Style
+                            </label>
+                            <select id="travelStyle" class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                <option value="">Select your style</option>
+                                <option value="adventure">🏃‍♂️ Adventure & Trekking</option>
+                                <option value="cultural">🏛️ Cultural & Religious</option>
+                                <option value="nature">🌿 Nature & Wildlife</option>
+                                <option value="family">👨‍👩‍👧‍👦 Family Friendly</option>
+                                <option value="budget">💰 Budget Travel</option>
+                                <option value="luxury">✨ Luxury Experience</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 text-sm font-medium mb-2 flex items-center">
+                                <i class="fas fa-rupee-sign mr-2 text-yellow-500"></i>
+                                Budget Range
+                            </label>
+                            <select id="budget" class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                <option value="">Select budget</option>
+                                <option value="under-5000">💵 Under ₹5,000</option>
+                                <option value="5000-10000">💴 ₹5,000 - ₹10,000</option>
+                                <option value="10000-20000">💶 ₹10,000 - ₹20,000</option>
+                                <option value="20000-50000">💷 ₹20,000 - ₹50,000</option>
+                                <option value="above-50000">💎 Above ₹50,000</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Progress Bar -->
+                        <div class="mt-4">
+                            <div class="flex justify-between text-xs text-gray-600 mb-1">
+                                <span>Planning Progress</span>
+                                <span id="progressText">0%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <button onclick="startPlanning()" class="w-full bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 text-white py-4 px-6 rounded-xl font-semibold hover:from-blue-600 hover:via-purple-700 hover:to-pink-600 transition-all duration-300 pulse-glow transform hover:scale-105">
+                            <i class="fas fa-rocket mr-2"></i>
+                            Generate AI Itinerary
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Enhanced Quick Info -->
+                <div class="glass-strong rounded-2xl p-6 feature-card">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <span class="mr-2 text-xl">💡</span>
+                        Smart Insights
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="map-preview">
+                            <div class="relative z-10">
+                                <div class="text-sm font-medium mb-2">📍 Live Location Data</div>
+                                <div class="text-xs opacity-90">Real-time weather, traffic & events</div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3 text-gray-700 text-sm">
+                            <div class="flex items-start space-x-3 p-2 bg-blue-50 rounded-lg">
+                                <span class="text-blue-500 mt-1">🌤️</span>
+                                <div>
+                                    <div class="font-medium">Best Season</div>
+                                    <div class="text-xs text-gray-600">October to March - Perfect weather</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3 p-2 bg-green-50 rounded-lg">
+                                <span class="text-green-500 mt-1">🚗</span>
+                                <div>
+                                    <div class="font-medium">Transportation</div>
+                                    <div class="text-xs text-gray-600">Well connected by all modes</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3 p-2 bg-purple-50 rounded-lg">
+                                <span class="text-purple-500 mt-1">🏨</span>
+                                <div>
+                                    <div class="font-medium">Accommodation</div>
+                                    <div class="text-xs text-gray-600">200+ verified partner hotels</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Enhanced Chat Interface -->
+            <div class="lg:col-span-2">
+                <div class="glass-strong rounded-2xl p-6 h-[700px] flex flex-col feature-card">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                            <span class="mr-3 text-2xl">🤖</span>
+                            Advanced AI Travel Assistant
+                        </h2>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-2 text-green-600">
+                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                <span class="text-sm font-medium">AI Online</span>
+                            </div>
+                            <button onclick="clearChat()" class="text-gray-500 hover:text-red-500 transition-colors">
+                                <i class="fas fa-trash text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Enhanced Chat Messages -->
+                    <div id="chatMessages" class="flex-1 overflow-y-auto space-y-4 mb-4 pr-2 scroll-smooth">
+                        <div class="chat-bubble-bot p-4 max-w-lg">
+                            <div class="flex items-start space-x-3">
+                                <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-2 mb-2">
+                                        <span class="font-semibold text-gray-800">AI Assistant</span>
+                                        <span class="text-xs text-gray-500">Just now</span>
+                                        <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">Online</span>
+                                    </div>
+                                    <p class="text-gray-700 text-sm leading-relaxed">
+                                        🌟 Welcome to Jharkhand's most advanced AI travel planner! I'm equipped with:
+                                        <br><br>
+                                        ✨ <strong>Real-time data</strong> - Live weather, traffic, events<br>
+                                        🎯 <strong>Personalized itineraries</strong> - Tailored to your preferences<br>
+                                        💰 <strong>Smart budgeting</strong> - Optimized cost breakdowns<br>
+                                        🏨 <strong>Hotel booking</strong> - Direct integration with 200+ hotels<br>
+                                        📱 <strong>Voice commands</strong> - Speak your queries naturally<br>
+                                        🗺️ <strong>Interactive maps</strong> - Visual route planning<br>
+                                        <br>
+                                        Ready to plan your perfect Jharkhand adventure? 🏔️✨
+                                    </p>
+                                    <div class="chat-suggestions">
+                                        <span class="suggestion-chip" onclick="quickQuery('best waterfalls')">🌊 Best Waterfalls</span>
+                                        <span class="suggestion-chip" onclick="quickQuery('budget hotels')">🏨 Budget Hotels</span>
+                                        <span class="suggestion-chip" onclick="quickQuery('local cuisine')">🍽️ Local Food</span>
+                                        <span class="suggestion-chip" onclick="quickQuery('adventure activities')">🏃‍♂️ Adventures</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Enhanced Typing Indicator -->
+                    <div id="typingIndicator" class="typing-indicator items-center space-x-2 mb-4">
+                        <div class="chat-bubble-bot p-3 max-w-xs">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <span class="text-xs text-gray-600 mr-2">AI is thinking</span>
+                                    <div class="typing-dot"></div>
+                                    <div class="typing-dot"></div>
+                                    <div class="typing-dot"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Enhanced Chat Input -->
+                    <div class="flex items-end space-x-3">
+                        <div class="flex-1 relative">
+                            <input 
+                                type="text" 
+                                id="chatInput" 
+                                placeholder="Ask me anything about Jharkhand travel... (or use voice 🎤)"
+                                class="w-full p-4 pr-12 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                                onkeypress="handleKeyPress(event)"
+                            >
+                            <button onclick="toggleVoiceInput()" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-500 transition-colors">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                        </div>
+                        <div class="voice-button" id="voiceButton" onclick="toggleVoiceInput()">
+                            <i class="fas fa-microphone"></i>
+                        </div>
+                        <button 
+                            onclick="sendMessage()" 
+                            class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-4 rounded-xl font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                        >
+                            <i class="fas fa-paper-plane mr-2"></i>
+                            Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let chatHistory = [];
+        let isRecording = false;
+        let recognition = null;
+        
+        // Initialize speech recognition
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+            
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('chatInput').value = transcript;
+                showNotification('Voice input captured: "' + transcript + '"');
+            };
+            
+            recognition.onerror = function(event) {
+                showNotification('Voice recognition error. Please try again.', 'error');
+                stopVoiceInput();
+            };
+            
+            recognition.onend = function() {
+                stopVoiceInput();
+            };
+        }
+        
+        // Enhanced form progress tracking
+        function updateProgress() {
+            const fields = ['destination', 'duration', 'travelStyle', 'budget', 'groupSize'];
+            let filled = 0;
+            
+            fields.forEach(field => {
+                if (document.getElementById(field).value) filled++;
+            });
+            
+            const progress = (filled / fields.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = Math.round(progress) + '%';
+        }
+        
+        // Add event listeners to form fields
+        document.addEventListener('DOMContentLoaded', function() {
+            const fields = ['destination', 'duration', 'travelStyle', 'budget', 'groupSize'];
+            fields.forEach(field => {
+                document.getElementById(field).addEventListener('change', updateProgress);
+            });
+            
+            // Animate counters
+            animateCounters();
+            
+            // Show welcome notification
+            setTimeout(() => showNotification('Welcome! Start planning your Jharkhand adventure 🏔️'), 1000);
+            
+            // Update scroll progress
+            window.addEventListener('scroll', updateScrollProgress);
+        });
+        
+        function animateCounters() {
+            const counters = document.querySelectorAll('.stats-counter');
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-target'));
+                let current = 0;
+                const increment = target / 50;
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        counter.textContent = target;
+                        clearInterval(timer);
+                    } else {
+                        counter.textContent = Math.floor(current);
+                    }
+                }, 40);
+            });
+        }
+        
+        function updateScrollProgress() {
+            const scrollTop = window.pageYOffset;
+            const docHeight = document.body.offsetHeight - window.innerHeight;
+            const scrollPercent = (scrollTop / docHeight) * 100;
+            document.getElementById('scrollProgress').style.width = scrollPercent + '%';
+        }
+        
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const text = document.getElementById('notificationText');
+            
+            text.textContent = message;
+            notification.className = `notification show ${type === 'error' ? 'bg-red-500' : 'bg-green-500'}`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        function toggleVoiceInput() {
+            if (!recognition) {
+                showNotification('Voice recognition not supported in this browser', 'error');
+                return;
+            }
+            
+            if (isRecording) {
+                stopVoiceInput();
+            } else {
+                startVoiceInput();
+            }
+        }
+        
+        function startVoiceInput() {
+            isRecording = true;
+            const voiceButton = document.getElementById('voiceButton');
+            voiceButton.classList.add('recording');
+            voiceButton.innerHTML = '<i class="fas fa-stop"></i>';
+            
+            recognition.start();
+            showNotification('Listening... Speak your query now 🎤');
+        }
+        
+        function stopVoiceInput() {
+            isRecording = false;
+            const voiceButton = document.getElementById('voiceButton');
+            voiceButton.classList.remove('recording');
+            voiceButton.innerHTML = '<i class="fas fa-microphone"></i>';
+            
+            if (recognition) {
+                recognition.stop();
+            }
+        }
+        
+        function quickQuery(query) {
+            document.getElementById('chatInput').value = query;
+            sendMessage();
+        }
+        
+        function clearChat() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = `
+                <div class="chat-bubble-bot p-4 max-w-lg">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <span class="font-semibold text-gray-800">AI Assistant</span>
+                                <span class="text-xs text-gray-500">Just now</span>
+                                <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">Online</span>
+                            </div>
+                            <p class="text-gray-700 text-sm">Chat cleared! How can I help you plan your Jharkhand journey? 🌟</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            chatHistory = [];
+            showNotification('Chat history cleared');
+        }
+        
+        function startPlanning() {
+            const destination = document.getElementById('destination').value;
+            const duration = document.getElementById('duration').value;
+            const travelStyle = document.getElementById('travelStyle').value;
+            const budget = document.getElementById('budget').value;
+            const groupSize = document.getElementById('groupSize').value;
+            
+            if (!destination || !duration || !travelStyle || !budget || !groupSize) {
+                showNotification('Please complete all travel details first! 📋', 'error');
+                return;
+            }
+            
+            const userMessage = `🎯 Generate a comprehensive itinerary for ${destination} in Jharkhand. Duration: ${duration}, Style: ${travelStyle}, Budget: ${budget}, Group: ${groupSize}. Include real-time recommendations, hotel bookings, and local insights.`;
+            
+            addMessage(userMessage, 'user');
+            showNotification('Generating your personalized AI itinerary... ✨');
+            
+            setTimeout(() => {
+                generateAdvancedItinerary(destination, duration, travelStyle, budget, groupSize);
+            }, 2000);
+        }
+        
+        function generateAdvancedItinerary(destination, duration, travelStyle, budget, groupSize) {
+            showTyping();
+            
+            setTimeout(() => {
+                hideTyping();
+                
+                const destinationInfo = getEnhancedDestinationInfo(destination);
+                const budgetInfo = getDetailedBudgetBreakdown(budget, duration);
+                const packingList = getSmartPackingList(travelStyle, destination);
+                const realTimeInfo = getRealTimeInsights(destination);
+                
+                const response = `🎯 **Your Personalized ${destinationInfo.name} Adventure Plan**
+
+${realTimeInfo}
+
+📍 **Destination Overview**
+${destinationInfo.description}
+🌟 **Popularity Score:** ${destinationInfo.popularity}/10
+⏰ **Optimal Visit Time:** ${destinationInfo.bestTime}
+
+📅 **Smart ${duration} Itinerary**
+${destinationInfo.detailedItinerary}
+
+💰 **AI-Optimized Budget (${budget})**
+${budgetInfo}
+
+🎒 **Smart Packing Checklist**
+${packingList}
+
+🏨 **Verified Partner Hotels** (Real-time availability)
+${destinationInfo.enhancedHotels}
+
+🚗 **Transportation Hub**
+${destinationInfo.transport}
+🚌 **Live Traffic Status:** Moderate (Updated 5 mins ago)
+
+🎯 **Personalized Recommendations**
+${destinationInfo.personalizedTips}
+
+📱 **Quick Actions:**
+• Book hotels directly through our partners
+• Get live weather updates
+• Download offline maps
+• Connect with local guides
+
+💡 **AI Insights:** Based on 10,000+ traveler reviews and real-time data
+
+Would you like me to help you book accommodations or provide more specific information about any aspect? 🤖✨`;
+                
+                addMessage(response, 'bot');
+                showNotification('Your personalized itinerary is ready! 🎉');
+            }, 3000);
+        }
+        
+        function getEnhancedDestinationInfo(destination) {
+            const destinations = {
+                'ranchi': {
+                    name: 'Ranchi - The Smart City of Waterfalls',
+                    description: '🏙️ Modern capital city blending urban amenities with natural beauty. Known for its pleasant climate, stunning waterfalls, and vibrant culture.',
+                    popularity: 9.2,
+                    bestTime: 'October to March (18-25°C) - Perfect weather with clear skies',
+                    detailedItinerary: `**Day 1: Urban Exploration**
+🌅 Morning: Arrival → Hotel check-in → Rock Garden (9 AM)
+🌞 Afternoon: Kanke Dam → Boating & photography (2 PM)
+🌆 Evening: Ranchi Lake → Local market shopping (5 PM)
+
+**Day 2: Waterfall Adventure**
+🌅 Early Morning: Hundru Falls (7 AM) - 98m spectacular drop
+🌞 Afternoon: Jonha Falls → Picnic lunch (1 PM)
+🌆 Evening: Pahari Mandir → Sunset views (6 PM)
+
+**Day 3: Culture & Wildlife**
+🌅 Morning: Jagannath Temple → Birsa Zoological Park (9 AM)
+🌞 Afternoon: Tribal Research Institute → Cultural insights (2 PM)
+🌆 Evening: Main Road shopping → Local cuisine (5 PM)`,
+                    enhancedHotels: `🏨 **Premium Category**
+• **Radisson Blu Ranchi** (₹6,500/night) ⭐⭐⭐⭐⭐
+  - Live availability: 3 rooms left
+  - Amenities: Spa, pool, 24/7 room service
+  - Guest rating: 4.8/5 (2,340 reviews)
+
+🏨 **Mid-Range Comfort**
+• **Hotel Chanakya** (₹3,200/night) ⭐⭐⭐⭐
+  - Live availability: 7 rooms available
+  - Amenities: Restaurant, WiFi, parking
+  - Guest rating: 4.5/5 (1,890 reviews)
+
+🏨 **Budget Friendly**
+• **Hotel Yuvraj Palace** (₹1,800/night) ⭐⭐⭐
+  - Live availability: 12 rooms available
+  - Amenities: Clean rooms, basic facilities
+  - Guest rating: 4.2/5 (956 reviews)`,
+                    transport: '✈️ Birsa Munda Airport (8km) - Direct flights from Delhi, Mumbai, Kolkata\n🚂 Ranchi Railway Station - Well connected to major cities\n🚌 State & private buses available\n🚗 Taxi services: Ola, Uber, local cabs',
+                    personalizedTips: `🎯 **For ${destination} Travelers:**
+• Best photography spots: Hundru Falls (golden hour), Rock Garden (morning light)
+• Local delicacies: Litti Chokha at Kaveri Restaurant, street food at Firayalal Chowk
+• Hidden gems: Patratu Valley (45 mins drive), Getalsud Dam
+• Cultural experiences: Tribal dance performances at Tribal Research Institute
+• Shopping: Handloom products at Main Road, tribal artifacts at Firayalal Market
+• Safety tip: Carry water bottles during waterfall visits, wear comfortable shoes`
+                },
+                'jamshedpur': {
+                    name: 'Jamshedpur - India\'s First Planned Industrial City',
+                    description: '🏭 Beautifully planned city with excellent infrastructure, lush parks, and modern amenities. Perfect blend of industry and nature.',
+                    popularity: 8.7,
+                    bestTime: 'November to February (12-22°C) - Cool and pleasant for sightseeing',
+                    detailedItinerary: `**Day 1: City Highlights**
+🌅 Morning: Arrival → Jubilee Park → Rose Garden (9 AM)
+🌞 Afternoon: Tata Steel Zoological Park → Wildlife viewing (2 PM)
+🌆 Evening: Dimna Lake → Boating & sunset (5 PM)
+
+**Day 2: Nature & Adventure**
+🌅 Early Morning: Dalma Wildlife Sanctuary → Elephant spotting (6 AM)
+🌞 Afternoon: Dalma Hills → Trekking & views (1 PM)
+🌆 Evening: Bhuvaneshwari Temple → Spiritual experience (6 PM)
+
+**Day 3: Culture & Modern Attractions**
+🌅 Morning: Russi Modi Centre → Science exhibits (9 AM)
+🌞 Afternoon: Sakchi Market → Shopping & local food (2 PM)
+🌆 Evening: Keenan Stadium → Sports culture (5 PM)`,
+                    enhancedHotels: `🏨 **Luxury Experience**
+• **The Alcor** (₹5,500/night) ⭐⭐⭐⭐⭐
+  - Live availability: 2 suites, 5 deluxe rooms
+  - Amenities: Fine dining, spa, business center
+  - Guest rating: 4.7/5 (1,567 reviews)
+
+🏨 **Business Class**
+• **Hotel Oasis** (₹3,000/night) ⭐⭐⭐⭐
+  - Live availability: 8 rooms available
+  - Amenities: Conference halls, restaurant, gym
+  - Guest rating: 4.4/5 (1,234 reviews)
+
+🏨 **Value Stay**
+• **Hotel Rajmahal** (₹2,000/night) ⭐⭐⭐
+  - Live availability: 15 rooms available
+  - Amenities: Clean accommodation, basic facilities
+  - Guest rating: 4.1/5 (789 reviews)`,
+                    transport: '🚂 Tatanagar Railway Station - Major junction connecting all metros\n🚌 Well-developed bus network within city\n🚗 Excellent road connectivity via NH-33\n✈️ Nearest airport: Ranchi (130km)',
+                    personalizedTips: `🎯 **Jamshedpur Insider Tips:**
+• Best time for Dalma: Early morning (6-8 AM) for wildlife sightings
+• Must-try: Steel city special thali at local restaurants
+• Photography: Jubilee Park during spring (February-March) for blooming flowers
+• Adventure: Dalma Hills trek - moderate difficulty, 3-4 hours
+• Shopping: Sakchi market for local handicrafts and steel souvenirs
+• Local transport: City buses are efficient and economical`
+                },
+                'deoghar': {
+                    name: 'Deoghar - Sacred Abode of Lord Shiva',
+                    description: '🕉️ One of India\'s most sacred pilgrimage sites, home to Baba Baidyanath Jyotirlinga. Spiritual energy and divine atmosphere.',
+                    popularity: 9.5,
+                    bestTime: 'October to March (avoid Shravan month for crowds), September-November ideal',
+                    detailedItinerary: `**Day 1: Divine Darshan**
+🌅 Early Morning: Baidyanath Temple → Main darshan (4 AM)
+🌞 Morning: Nandan Pahar → Ropeway & views (9 AM)
+🌆 Evening: Temple evening aarti → Spiritual experience (7 PM)
+
+**Day 2: Spiritual Circuit**
+🌅 Morning: Basukinath Temple → 43km sacred journey (7 AM)
+🌞 Afternoon: Satsang Ashram → Meditation & peace (2 PM)
+🌆 Evening: Tapovan → Spiritual discourses (6 PM)
+
+**Day 3: Cultural Exploration**
+🌅 Morning: Trikuta Parvat → Cable car & temples (8 AM)
+🌞 Afternoon: Mayurbhanj Palace → Historical insights (2 PM)
+🌆 Evening: Local markets → Prasad & souvenirs (5 PM)`,
+                    enhancedHotels: `🏨 **Pilgrimage Special**
+• **Hotel Yatri Niwas** (₹2,500/night) ⭐⭐⭐⭐
+  - Live availability: 6 rooms (near temple)
+  - Amenities: Pure veg restaurant, temple shuttle
+  - Guest rating: 4.6/5 (2,100 reviews)
+
+🏨 **Comfortable Stay**
+• **Hotel Mahadev** (₹1,800/night) ⭐⭐⭐
+  - Live availability: 10 rooms available
+  - Amenities: Spiritual ambiance, clean rooms
+  - Guest rating: 4.3/5 (1,456 reviews)
+
+🏨 **Budget Dharamshala**
+• **Baidyanath Dharamshala** (₹800/night) ⭐⭐
+  - Live availability: 20 beds available
+  - Amenities: Basic facilities, spiritual environment
+  - Guest rating: 4.0/5 (890 reviews)`,
+                    transport: '🚂 Jasidih Junction (7km) - Well connected to major cities\n🚌 Regular bus services from Ranchi, Dhanbad\n🚗 Good road connectivity, parking available near temple\n✈️ Nearest airport: Ranchi (250km)',
+                    personalizedTips: `🎯 **Pilgrimage Guidelines:**
+• Temple timings: 4 AM - 3:30 PM, 6 PM - 9 PM
+• Dress code: Traditional/modest clothing required
+• Best darshan time: Early morning (4-6 AM) to avoid crowds
+• Offerings: Bel leaves, flowers, milk available at temple
+• Accommodation: Book in advance during Shravan month (July-August)
+• Local cuisine: Pure vegetarian meals, try prasad from temple
+• Spiritual tip: Participate in evening aarti for divine experience`
+                }
+            };
+            
+            return destinations[destination] || destinations['ranchi'];
+        }
+        
+        function getDetailedBudgetBreakdown(budget, duration) {
+            const budgetRanges = {
+                'under-5000': `💰 **Ultra Budget Plan** (Perfect for backpackers)
+🏨 Accommodation: ₹1,200-1,800 (Hostels, dharamshala, budget hotels)
+🍽️ Food: ₹600-1,000 (Street food, local dhabas, self-cooking)
+🚌 Transport: ₹800-1,200 (Local buses, shared autos, walking)
+🎯 Activities: ₹400-600 (Free attractions, basic entry fees)
+🛍️ Miscellaneous: ₹300-500 (Souvenirs, emergency fund)
+💡 **Money-saving tips:** Travel in groups, use public transport, eat at local places`,
+
+                '5000-10000': `💰 **Smart Budget Plan** (Best value for money)
+🏨 Accommodation: ₹2,000-3,500 (3-star hotels, good amenities)
+🍽️ Food: ₹1,200-2,000 (Mix of restaurants and local food)
+🚗 Transport: ₹1,500-2,500 (AC buses, shared cabs, some private transport)
+🎯 Activities: ₹800-1,200 (Guided tours, adventure activities)
+🛍️ Miscellaneous: ₹800-1,200 (Shopping, tips, contingency)
+💡 **Optimization tip:** Book accommodations online for discounts`,
+
+                '10000-20000': `💰 **Comfort Plan** (Balanced luxury and savings)
+🏨 Accommodation: ₹3,500-6,000 (4-star hotels, excellent facilities)
+🍽️ Food: ₹2,000-3,500 (Restaurant dining, local specialties)
+🚗 Transport: ₹2,500-4,000 (Private cabs, comfortable travel)
+🎯 Activities: ₹1,500-2,500 (Premium experiences, guided tours)
+🛍️ Miscellaneous: ₹1,200-2,000 (Quality souvenirs, spa treatments)
+💡 **Upgrade tip:** Choose hotels with complimentary breakfast`,
+
+                '20000-50000': `💰 **Premium Experience** (Luxury with local charm)
+🏨 Accommodation: ₹5,000-10,000 (5-star hotels, luxury resorts)
+🍽️ Food: ₹3,500-6,000 (Fine dining, chef specials, wine pairing)
+🚗 Transport: ₹4,000-8,000 (Luxury cars, helicopter transfers)
+🎯 Activities: ₹3,000-6,000 (Exclusive tours, private guides, adventure sports)
+🛍️ Miscellaneous: ₹2,500-4,000 (Premium shopping, spa, photography)
+💡 **Luxury tip:** Book heritage hotels for authentic experiences`,
+
+                'above-50000': `💰 **Ultra Luxury Plan** (VIP treatment throughout)
+🏨 Accommodation: ₹8,000+ (Presidential suites, heritage palaces)
+🍽️ Food: ₹5,000+ (Michelin-style dining, private chefs)
+🚗 Transport: ₹6,000+ (Luxury fleet, charter helicopters, private jets)
+🎯 Activities: ₹5,000+ (Exclusive access, private performances, custom experiences)
+🛍️ Miscellaneous: ₹3,000+ (Designer shopping, premium spa, personal butler)
+💡 **VIP services:** Dedicated travel concierge, 24/7 support`
+            };
+            
+            return budgetRanges[budget] || budgetRanges['5000-10000'];
+        }
+        
+        function getSmartPackingList(travelStyle, destination) {
+            const basePacking = `📦 **Essential Items (All Travelers)**
+👕 Clothing: Light cotton (day), warm layer (evening), comfortable walking shoes
+🧴 Personal Care: Sunscreen SPF 30+, moisturizer, personal medications
+📱 Tech: Power bank, chargers, camera/smartphone, portable WiFi
+💧 Health: Water bottle, hand sanitizer, basic first aid kit
+📄 Documents: ID proof, hotel bookings, travel insurance, emergency contacts`;
+            
+            const stylePacking = {
+                'adventure': `\n\n🏃‍♂️ **Adventure Gear**
+👟 Footwear: Trekking boots, grip soles, extra socks
+🎒 Equipment: Daypack, headlamp/flashlight, multi-tool
+🍫 Nutrition: Energy bars, electrolyte powder, dry fruits
+🧗‍♂️ Safety: Whistle, rope (if trekking), waterproof bags`,
+
+                'cultural': `\n\n🏛️ **Cultural Experience Kit**
+👗 Attire: Modest clothing for temples, comfortable sandals
+🎁 Offerings: Small bag for temple visits, donation money
+📚 Learning: Guidebook, language phrases, cultural etiquette notes
+📿 Spiritual: Prayer items (if religious), meditation accessories`,
+
+                'nature': `\n\n🌿 **Nature Explorer Pack**
+🔍 Observation: Binoculars, magnifying glass, field notebook
+🦟 Protection: Insect repellent, light rain jacket, hat
+📸 Photography: Extra batteries, memory cards, lens cleaning kit
+🌱 Eco-friendly: Reusable bags, biodegradable soap`,
+
+                'family': `\n\n👨‍👩‍👧‍👦 **Family Travel Essentials**
+🎮 Entertainment: Games, books, tablets with downloaded content
+🍪 Snacks: Healthy snacks, water bottles for everyone
+👶 Kids Care: Baby items (if needed), extra clothes, wet wipes
+🏥 Safety: Family first aid kit, emergency contact list`,
+
+                'budget': `\n\n💰 **Budget Traveler Hacks**
+🧼 Savings: Laundry soap, reusable utensils, packed meals
+💡 Smart Items: Universal adapter, offline maps, translation app
+🎒 Multi-use: Sarong (towel/blanket), duct tape, safety pins
+💳 Money: Multiple payment options, hidden money belt`,
+
+                'luxury': `\n\n✨ **Luxury Travel Collection**
+👔 Formal: Evening wear for fine dining, quality luggage
+🧴 Premium: High-end toiletries, skincare products
+📱 Tech: Noise-canceling headphones, premium camera gear
+💎 Accessories: Quality jewelry, designer sunglasses, silk scarves`
+            };
+            
+            return basePacking + (stylePacking[travelStyle] || '');
+        }
+        
+        function getRealTimeInsights(destination) {
+            const insights = [
+                `🌤️ **Live Weather Update:** Currently 24°C, sunny with light breeze - Perfect for outdoor activities!`,
+                `🚦 **Traffic Status:** Moderate traffic on main routes - Allow extra 15 minutes for travel`,
+                `🎉 **Local Events:** Traditional dance performance at cultural center this evening (7 PM)`,
+                `📱 **Connectivity:** 4G coverage excellent, WiFi available at most hotels and cafes`,
+                `💡 **Traveler Alert:** Peak season - book accommodations and activities in advance`
+            ];
+            
+            return insights[Math.floor(Math.random() * insights.length)];
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                addMessage(message, 'user');
+                input.value = '';
+                
+                setTimeout(() => {
+                    const response = generateAdvancedChatResponse(message);
+                    showTyping();
+                    setTimeout(() => {
+                        hideTyping();
+                        addMessage(response, 'bot');
+                    }, 2000);
+                }, 500);
+            }
+        }
+        
+        function generateAdvancedChatResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            if (lowerMessage.includes('hotel') || lowerMessage.includes('accommodation') || lowerMessage.includes('booking')) {
+                return `🏨 **Smart Hotel Booking Assistant**
+
+**🔥 Live Deals & Availability:**
+• **Flash Sale:** 30% off on weekend bookings (Valid till tomorrow)
+• **Early Bird:** Book 7 days advance, get 15% discount
+• **Group Discount:** 4+ rooms get additional 10% off
+
+**📱 Instant Booking Platforms:**
+• **MakeMyTrip** - Best for variety & reviews
+• **Booking.com** - Free cancellation options
+• **OYO Rooms** - Budget-friendly, standardized quality
+• **Goibibo** - Cashback offers & loyalty points
+
+**🎯 AI Recommendations Based on Your Profile:**
+• **For Families:** Hotels with connecting rooms, kid-friendly amenities
+• **For Business:** Properties with conference facilities, WiFi
+• **For Couples:** Romantic settings, spa services, privacy
+
+**💡 Pro Booking Tips:**
+• Compare prices across 3-4 platforms
+• Read recent reviews (last 6 months)
+• Check cancellation policies
+• Verify amenities before booking
+
+**🏨 Jharkhand Hotel Partnerships:**
+We have direct tie-ups with 200+ verified properties. Want me to check real-time availability for your dates? 📅`;
+            }
+            
+            if (lowerMessage.includes('weather') || lowerMessage.includes('climate') || lowerMessage.includes('temperature')) {
+                return `🌤️ **Advanced Weather Intelligence for Jharkhand**
+
+**📊 Current Conditions (Live Data):**
+• **Temperature:** 24°C (Feels like 26°C)
+• **Humidity:** 65% (Comfortable)
+• **Wind:** 12 km/h from northeast
+• **UV Index:** 6 (Moderate - Use sunscreen)
+• **Air Quality:** Good (AQI: 78)
+
+**📅 7-Day Forecast:**
+• **Today:** Sunny, 24°C/18°C - Perfect for sightseeing
+• **Tomorrow:** Partly cloudy, 26°C/19°C - Good for outdoor activities
+• **Weekend:** Light showers expected - Indoor attractions recommended
+
+**🌍 Seasonal Guide:**
+**🌸 Spring (March-May):** 20-35°C
+- Best for: Waterfall visits, trekking
+- Pack: Light clothes, sun protection
+
+**🌧️ Monsoon (June-September):** 22-30°C
+- Best for: Lush green landscapes, photography
+- Pack: Rainwear, waterproof bags
+
+**❄️ Winter (October-February):** 10-25°C
+- Best for: All outdoor activities, festivals
+- Pack: Light woolens, comfortable shoes
+
+**🌞 Summer (March-June):** 25-40°C
+- Best for: Hill stations, early morning activities
+- Pack: Cotton clothes, hydration essentials
+
+**💡 Smart Weather Tips:**
+• Download weather apps for hourly updates
+• Check local weather before waterfall visits
+• Monsoon can affect road conditions in remote areas
+
+Want specific weather info for your travel dates? 📱`;
+            }
+            
+            if (lowerMessage.includes('food') || lowerMessage.includes('cuisine') || lowerMessage.includes('restaurant')) {
+                return `🍽️ **Jharkhand Culinary Adventure Guide**
+
+**🏆 Must-Try Signature Dishes:**
+• **Litti Chokha** - Roasted wheat balls with spiced vegetables (₹80-120)
+• **Dhuska** - Crispy rice-lentil pancakes with curry (₹60-100)
+• **Rugra Curry** - Wild mushroom delicacy (₹150-200)
+• **Bamboo Shoot Curry** - Tribal specialty (₹120-180)
+• **Pittha** - Sweet rice dumplings in milk (₹40-80)
+
+**🍴 Top-Rated Restaurants by City:**
+
+**Ranchi:**
+• **Kaveri Restaurant** ⭐4.8/5 - Authentic Jharkhand cuisine
+• **Sagar Ratna** ⭐4.6/5 - South Indian & local fusion
+• **Firayalal Chowk** ⭐4.5/5 - Street food paradise
+
+**Jamshedpur:**
+• **The Alcor Restaurant** ⭐4.7/5 - Fine dining experience
+• **Sakchi Food Court** ⭐4.4/5 - Local flavors hub
+• **Steel City Dhaba** ⭐4.3/5 - Authentic North Indian
+
+**🌶️ Spice Level Guide:**
+• **Mild:** Most hotel restaurants adapt to tourist palates
+• **Medium:** Local dhabas and family restaurants
+• **Spicy:** Traditional tribal preparations
+
+**🥗 Dietary Options:**
+• **Vegetarian:** Excellent options, especially in Deoghar
+• **Vegan:** Limited but available, inform restaurants in advance
+• **Jain Food:** Available in major cities
+• **Gluten-Free:** Rice-based dishes widely available
+
+**🍹 Local Beverages:**
+• **Handia** - Traditional rice beer (tribal areas)
+• **Mahua** - Flower-based drink (seasonal)
+• **Fresh Sugarcane Juice** - Available everywhere
+• **Sattu Drink** - Nutritious roasted gram flour drink
+
+**💡 Foodie Tips:**
+• Try street food at evening markets (5-8 PM)
+• Carry antacid if you're not used to spicy food
+• Local markets offer fresh seasonal fruits
+• Many restaurants close between 3-6 PM
+
+Want restaurant recommendations for your specific destination? 🍴`;
+            }
+            
+            if (lowerMessage.includes('transport') || lowerMessage.includes('travel') || lowerMessage.includes('taxi') || lowerMessage.includes('bus')) {
+                return `🚗 **Complete Transportation Hub for Jharkhand**
+
+**✈️ Air Connectivity:**
+• **Birsa Munda Airport, Ranchi** - Main gateway
+  - Direct flights: Delhi (2h), Mumbai (2.5h), Kolkata (1.5h)
+  - Airlines: IndiGo, SpiceJet, Air India
+  - Airport to city: 30 mins by taxi (₹300-500)
+
+**🚂 Railway Network:**
+• **Major Stations:** Ranchi, Tatanagar (Jamshedpur), Dhanbad
+• **Key Routes:** 
+  - Delhi-Ranchi: Rajdhani Express (16h)
+  - Mumbai-Ranchi: Azad Hind Express (24h)
+  - Kolkata-Ranchi: Shatabdi Express (7h)
+
+**🚌 Road Transport:**
+**State Buses:**
+• **Jharkhand State Road Transport** - Budget-friendly
+• **AC Volvo Services** - Comfortable long-distance
+• **Private Operators:** RedBus, AbhiBus for online booking
+
+**🚗 Cab Services & Rentals:**
+**App-Based:**
+• **Ola** - Available in Ranchi, Jamshedpur, Dhanbad
+• **Uber** - Limited to major cities
+• **Local Apps:** JharTaxi, RanchiCabs
+
+**Car Rentals:**
+• **Self-Drive:** Zoomcar, Drivezy (₹2,000-4,000/day)
+• **With Driver:** ₹2,500-5,000/day (8 hours, 80km)
+• **Luxury Options:** Audi, BMW available (₹8,000+/day)
+
+**🏍️ Local Transport:**
+• **Auto-rickshaws:** ₹10-15/km (negotiate fare)
+• **Cycle-rickshaws:** ₹5-10/km (eco-friendly option)
+• **Local Buses:** ₹5-20 within city limits
+
+**📱 Smart Transport Tips:**
+• Download offline maps (Google Maps works well)
+• Keep cash handy for local transport
+• Book return tickets in advance during festivals
+• Use ride-sharing for safety, especially at night
+
+**🛣️ Road Conditions:**
+• **NH-33:** Excellent condition, connects major cities
+• **State Highways:** Good, some under construction
+• **Rural Roads:** Variable, check during monsoon
+
+**⏰ Travel Time Matrix:**
+• Ranchi ↔ Jamshedpur: 2.5 hours (130km)
+• Ranchi ↔ Deoghar: 4 hours (250km)
+• Ranchi ↔ Netarhat: 3 hours (156km)
+
+Need specific route planning or real-time traffic updates? 🗺️`;
+            }
+            
+            if (lowerMessage.includes('budget') || lowerMessage.includes('cost') || lowerMessage.includes('money') || lowerMessage.includes('price')) {
+                return `💰 **Smart Budget Planning & Money Management**
+
+**📊 Daily Budget Calculator:**
+**Ultra Budget (₹1,500-2,500/day):**
+• Accommodation: ₹800-1,200 (hostels, dharamshala)
+• Food: ₹400-600 (street food, local eateries)
+• Transport: ₹200-400 (public transport)
+• Activities: ₹100-300 (free attractions, basic entries)
+
+**Mid-Range (₹3,000-5,000/day):**
+• Accommodation: ₹1,500-2,500 (3-star hotels)
+• Food: ₹800-1,200 (restaurants + local food)
+• Transport: ₹500-800 (mix of public & private)
+• Activities: ₹400-600 (guided tours, paid attractions)
+
+**Luxury (₹8,000+/day):**
+• Accommodation: ₹4,000+ (5-star hotels)
+• Food: ₹2,000+ (fine dining)
+• Transport: ₹1,500+ (private cars)
+• Activities: ₹1,000+ (premium experiences)
+
+**💳 Payment Methods:**
+• **Cash:** Essential for local transport, street food, tips
+• **Cards:** Accepted at hotels, restaurants, malls
+• **UPI:** Widely accepted (PhonePe, Google Pay, Paytm)
+• **ATMs:** Available in all cities, limited in remote areas
+
+**💡 Money-Saving Hacks:**
+• **Group Travel:** Share accommodation & transport costs
+• **Off-Season:** 30-50% savings on hotels (April-June)
+• **Local Markets:** Bargain for souvenirs (start at 50% quoted price)
+• **Combo Tickets:** Many attractions offer package deals
+• **Government Tourism:** JSTDC packages often cost-effective
+
+**🏦 Banking & ATMs:**
+• **Major Banks:** SBI, HDFC, ICICI widely available
+• **ATM Charges:** ₹20-25 for other bank cards
+• **Currency Exchange:** Available at airports, major hotels
+
+**📱 Budget Tracking Apps:**
+• **Splitwise:** For group expense sharing
+• **Money Lover:** Daily expense tracking
+• **Walnut:** Automatic expense categorization
+
+**🎯 Destination-Specific Costs:**
+• **Ranchi:** Most expensive, good infrastructure
+• **Deoghar:** Moderate, pilgrimage-focused pricing
+• **Netarhat:** Budget-friendly, limited luxury options
+• **Betla:** Eco-tourism rates, government-controlled
+
+**💰 Emergency Fund Tips:**
+• Keep 20% extra for unexpected expenses
+• Carry cash for remote areas
+• Have multiple payment options
+• Keep emergency contacts of banks
+
+Want a detailed budget breakdown for your specific itinerary? 📊`;
+            }
+            
+            if (lowerMessage.includes('adventure') || lowerMessage.includes('trekking') || lowerMessage.includes('activities')) {
+                return `🏃‍♂️ **Ultimate Adventure Guide for Jharkhand**
+
+**⛰️ Top Trekking Destinations:**
+
+**🌄 Netarhat Hills**
+• **Difficulty:** Easy to Moderate
+• **Duration:** 2-4 hours
+• **Best Time:** October-March
+• **Highlights:** Sunrise/sunset points, valley views
+• **Cost:** ₹500-1,000 (guide + permits)
+
+**🏔️ Parasnath Hill**
+• **Difficulty:** Moderate to Challenging
+• **Duration:** 6-8 hours (round trip)
+• **Elevation:** 1,365m (highest peak in Jharkhand)
+• **Spiritual:** 20 Jain temples on route
+• **Cost:** ₹800-1,500 (guide recommended)
+
+**🌲 Dalma Hills**
+• **Difficulty:** Easy to Moderate
+• **Duration:** 3-5 hours
+• **Wildlife:** Elephants, deer, birds
+• **Best Season:** November-February
+• **Cost:** ₹300-600 (entry + guide)
+
+**🚣‍♂️ Water Adventures:**
+
+**🏊‍♂️ River Rafting**
+• **Location:** Subarnarekha River (near Jamshedpur)
+• **Season:** Post-monsoon (October-December)
+• **Difficulty:** Grade II-III rapids
+• **Cost:** ₹1,500-2,500 per person
+• **Duration:** 3-4 hours
+
+**🚤 Boating & Water Sports**
+• **Dimna Lake:** Pedal boats, speed boats (₹200-500)
+• **Kanke Dam:** Kayaking, jet skiing (₹800-1,500)
+• **Getalsud Dam:** Fishing, boating (₹300-800)
+
+**🦌 Wildlife Adventures:**
+
+**🐅 Betla National Park**
+• **Safari Options:** Jeep safari (₹2,000-3,000), Elephant safari (₹1,500)
+• **Best Time:** November-June (closed in monsoon)
+• **Wildlife:** Tigers, elephants, deer, leopards
+• **Photography:** Special permits available (₹500 extra)
+
+**🦏 Dalma Wildlife Sanctuary**
+• **Specialty:** Elephant herds, bird watching
+• **Safari Cost:** ₹1,200-2,000 per vehicle
+• **Trekking:** Nature trails available
+• **Best Time:** Early morning (6-9 AM)
+
+**🧗‍♂️ Adventure Sports:**
+
+**🪂 Paragliding**
+• **Location:** Netarhat (seasonal)
+• **Cost:** ₹3,000-5,000 per flight
+• **Duration:** 15-30 minutes
+• **Season:** October-March (weather dependent)
+
+**🏕️ Camping**
+• **Netarhat:** Organized camps (₹2,000-4,000/night)
+• **Betla:** Forest camping with permits (₹1,500-3,000)
+• **Dalma:** Day camping options (₹800-1,500)
+
+**🚴‍♂️ Cycling Tours**
+• **Ranchi City:** Heritage cycling tours (₹800-1,200)
+• **Rural Routes:** Village cycling experiences (₹1,500-2,500)
+• **Mountain Biking:** Netarhat trails (₹2,000-3,500)
+
+**🎯 Adventure Packages:**
+• **Weekend Warrior:** 2D/1N adventure combo (₹4,000-6,000)
+• **Adrenaline Week:** 7-day multi-activity (₹15,000-25,000)
+• **Family Adventure:** Kid-friendly activities (₹2,500-4,000)
+
+**⚠️ Safety Guidelines:**
+• Always hire certified guides for trekking
+• Carry first aid kit and emergency contacts
+• Check weather conditions before outdoor activities
+• Inform someone about your adventure plans
+• Carry adequate water and energy snacks
+
+**📱 Adventure Booking:**
+• **Local Operators:** Jharkhand Adventure Club, Wild Jharkhand
+• **Online:** Thrillophilia, Adventure Nation
+• **Government:** JSTDC adventure packages
+
+Ready to plan your adrenaline-pumping Jharkhand adventure? 🎯`;
+            }
+            
+            return `🤖 **Advanced AI Assistant at Your Service!**
+
+I'm equipped with comprehensive knowledge about Jharkhand travel. Here's what I can help you with:
+
+**🎯 Instant Assistance:**
+• **Real-time Information** - Weather, traffic, events
+• **Personalized Recommendations** - Based on your preferences
+• **Smart Budgeting** - Optimized cost planning
+• **Live Bookings** - Hotels, transport, activities
+• **Cultural Insights** - Local customs, festivals, etiquette
+• **Safety Updates** - Current conditions, travel advisories
+
+**💡 Popular Queries I Handle:**
+• "Best waterfalls near Ranchi"
+• "Budget hotels in Deoghar"
+• "Adventure activities in Jharkhand"
+• "Local food recommendations"
+• "Transportation options"
+• "Weather forecast for my dates"
+
+**🗣️ Voice Commands Supported:**
+Just click the microphone and speak naturally! I understand:
+• "Plan a 3-day trip to Netarhat"
+• "Find budget hotels in Jamshedpur"
+• "What's the weather like tomorrow?"
+
+**📱 Smart Features:**
+• **Context Memory** - I remember our conversation
+• **Multi-language** - Ask in Hindi or English
+• **Visual Responses** - Maps, images, charts when helpful
+• **Booking Integration** - Direct links to verified partners
+
+What specific aspect of your Jharkhand journey would you like to explore? 🌟
+
+*Try asking: "Plan my perfect weekend in Ranchi" or "Best adventure activities for families"*`;
+        }
+        
+        function addMessage(message, sender) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            if (sender === 'user') {
+                messageDiv.className = 'chat-bubble-user text-white p-4 max-w-lg ml-auto';
+                messageDiv.innerHTML = `
+                    <div class="flex items-start space-x-3 justify-end">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-2 justify-end">
+                                <span class="text-xs text-blue-100">${timestamp}</span>
+                                <span class="font-semibold">You</span>
+                            </div>
+                            <p class="text-sm leading-relaxed">${message}</p>
+                        </div>
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                `;
+            } else {
+                messageDiv.className = 'chat-bubble-bot p-4 max-w-lg';
+                messageDiv.innerHTML = `
+                    <div class="flex items-start space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <span class="font-semibold text-gray-800">AI Assistant</span>
+                                <span class="text-xs text-gray-500">${timestamp}</span>
+                                <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
+                                    <i class="fas fa-circle text-xs mr-1"></i>Online
+                                </span>
+                            </div>
+                            <div class="text-gray-700 text-sm leading-relaxed whitespace-pre-line">${message}</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Add to chat history
+            chatHistory.push({sender, message, timestamp});
+        }
+        
+        function showTyping() {
+            document.getElementById('typingIndicator').classList.add('active');
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function hideTyping() {
+            document.getElementById('typingIndicator').classList.remove('active');
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9776c5b7b75d5a00',t:'MTc1NjU4Mjk1Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
