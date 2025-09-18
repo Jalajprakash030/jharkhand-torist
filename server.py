@@ -12,15 +12,12 @@ from pathlib import Path
 class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         # Set the directory to serve files from
-        super().__init__(*args, directory="3.0  copy", **kwargs)
-    
+        super().__init__(*args, directory="3-0-copy", **kwargs)
     def end_headers(self):
-        # Add headers to prevent caching for development
-        self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
-        self.send_header('Pragma', 'no-cache')
-        self.send_header('Expires', '0')
-        super().end_headers()
-    
+    # Set proper content type for HTML files
+    if self.path.endswith('.html'):
+        self.send_header('Content-Type', 'text/html; charset=utf-8')
+    super().end_headers()
     def do_GET(self):
         # Handle root path - redirect to main page
         if self.path == '/':
@@ -36,7 +33,7 @@ def main():
     host = os.environ.get("HOST", "0.0.0.0")
     
     print(f"Starting server on {host}:{port}")
-    print(f"Serving files from: {os.path.abspath('3.0  copy')}")
+    print(f"Serving files from: {os.path.abspath('3-0-copy')}")
     print("Available pages:")
     print(f"  - http://localhost:{port}/ (main heritage marketplace)")
     print(f"  - http://localhost:{port}/h3.0.html (heritage marketplace)")
