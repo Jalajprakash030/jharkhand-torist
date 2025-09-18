@@ -2,6 +2,7 @@
 """
 Simple HTTP server for serving static HTML files
 """
+
 import http.server
 import socketserver
 import os
@@ -13,11 +14,17 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         # Set the directory to serve files from
         super().__init__(*args, directory="3-0-copy", **kwargs)
+
     def end_headers(self):
-    # Set proper content type for HTML files
-    if self.path.endswith('.html'):
-        self.send_header('Content-Type', 'text/html; charset=utf-8')
-    super().end_headers()
+        # Add headers to prevent caching for development
+        self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+        self.send_header('Pragma', 'no-cache')
+        self.send_header('Expires', '0')
+        # Set proper content type for HTML files
+        if self.path.endswith('.html'):
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+        super().end_headers()
+
     def do_GET(self):
         # Handle root path - redirect to main page
         if self.path == '/':
@@ -35,9 +42,9 @@ def main():
     print(f"Starting server on {host}:{port}")
     print(f"Serving files from: {os.path.abspath('3-0-copy')}")
     print("Available pages:")
-    print(f"  - http://localhost:{port}/ (main heritage marketplace)")
-    print(f"  - http://localhost:{port}/h3.0.html (heritage marketplace)")
-    print(f"  - http://localhost:{port}/h3.0.1.html (AI travel planner)")
+    print(f" - http://localhost:{port}/ (main heritage marketplace)")
+    print(f" - http://localhost:{port}/h3.0.html (heritage marketplace)")
+    print(f" - http://localhost:{port}/h3.0.1.html (AI travel planner)")
     
     try:
         with socketserver.TCPServer((host, port), CustomHTTPRequestHandler) as httpd:
@@ -51,6 +58,7 @@ def main():
             if "PORT" not in os.environ:
                 print(f"Port {port} is already in use. Trying to find an available port...")
                 import socket
+                
                 # Try to find an available port
                 for port_try in range(port + 1, port + 100):
                     try:
@@ -60,6 +68,7 @@ def main():
                             break
                     except OSError:
                         continue
+                
                 print(f"Using port {port} instead")
                 with socketserver.TCPServer((host, port), CustomHTTPRequestHandler) as httpd:
                     httpd.allow_reuse_address = True
